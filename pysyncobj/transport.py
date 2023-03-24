@@ -341,7 +341,7 @@ class TCPTransport(Transport):
         :type message: any
         """
         logging.info(f"message: {message}")
-        logging.info(f"conn: {conn}")
+        logging.info(f"conn: {vars(conn)}")
 
         if self._syncObj.encryptor and not conn.sendRandKey:
             conn.sendRandKey = message
@@ -354,9 +354,13 @@ class TCPTransport(Transport):
             return
 
         # At this point, message should be either a node ID (i.e. address) or 'readonly'
+        logging.info(f"self._nodeAddrToNode[message]: {self._nodeAddrToNode[message]}")
+        logging.info(f"self._nodeAddrToNode: {self._nodeAddrToNode}")
         node = self._nodeAddrToNode[message] if message in self._nodeAddrToNode else None
+        logging.info(f"node: {node}")
 
         if node is None and message != 'readonly':
+            logging.info("disconnecting")
             conn.disconnect()
             self._unknownConnections.discard(conn)
             return
@@ -382,8 +386,10 @@ class TCPTransport(Transport):
             message[0] = command.upper()
             callback = functools.partial(self._utilityCallback, conn = conn, args = message)
             try:
+                logging.info(f"_onUtilityMessage: {command} - {message[1:]} - {callback}")
                 self._onUtilityMessageCallbacks[command](message[1:], callback)
             except Exception as e:
+                logging.info(f"exception: {str(e)}")
                 conn.send(str(e))
             return True
 
