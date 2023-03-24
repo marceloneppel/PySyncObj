@@ -1,3 +1,5 @@
+import logging
+
 from .config import FAIL_REASON
 from .dns_resolver import globalDnsResolver
 from .monotonic import monotonic as monotonicTime
@@ -338,6 +340,8 @@ class TCPTransport(Transport):
         :param message: received message
         :type message: any
         """
+        logging.info(f"message: {message}")
+        logging.info(f"conn: {conn}")
 
         if self._syncObj.encryptor and not conn.sendRandKey:
             conn.sendRandKey = message
