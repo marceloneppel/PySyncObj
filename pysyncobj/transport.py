@@ -343,13 +343,18 @@ class TCPTransport(Transport):
         logging.info(f"message: {message}")
         logging.info(f"conn: {vars(conn)}")
 
+        logging.info(f"self._syncObj.encryptor: {self._syncObj.encryptor}")
+        logging.info(f"conn.sendRandKey: {conn.sendRandKey}")
         if self._syncObj.encryptor and not conn.sendRandKey:
             conn.sendRandKey = message
             conn.recvRandKey = os.urandom(32)
+            logging.info(f"conn.recvRandKey: {conn.recvRandKey}")
             conn.send(conn.recvRandKey)
             return
 
         # Utility messages
+        logging.info(f"isinstance(message, list): {isinstance(message, list)}")
+        logging.info(f"self._onUtilityMessage(conn, message): {self._onUtilityMessage(conn, message)}")
         if isinstance(message, list) and self._onUtilityMessage(conn, message):
             return
 
