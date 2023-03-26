@@ -1189,6 +1189,7 @@ class SyncObj(object):
                                 'prevLogIdx': prevLogIdx,
                                 'prevLogTerm': prevLogTerm,
                             }
+                            logging.info(f"after leader: {node} - {node.id} - {message}")
                             self.__transport.send(node, message)
                             if node not in self.__connectedNodes:
                                 break
