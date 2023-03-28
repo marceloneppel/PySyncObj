@@ -1,3 +1,5 @@
+import logging
+
 import time
 import socket
 from sys import platform
@@ -237,18 +239,22 @@ class TcpConnection(object):
             pass
 
     def __processSend(self):
+        logging.info(f"self.__writeBuffer: {self.__writeBuffer}")
         if not self.__writeBuffer:
             return False
         try:
             res = self.__socket.send(self.__writeBuffer)
+            logging.info(f"res: {res}")
             if res < 0:
                 self.disconnect()
                 return False
             if res == 0:
                 return False
             self.__writeBuffer = self.__writeBuffer[res:]
+            logging.info(f"self.__writeBuffer[res:]: {self.__writeBuffer[res:]}")
             return True
         except socket.error as e:
+            logging.info(f"e.errno: {e.errno} - {str(e)}")
             if e.errno not in (socket.errno.EAGAIN, socket.errno.EWOULDBLOCK):
                 self.disconnect()
             return False
