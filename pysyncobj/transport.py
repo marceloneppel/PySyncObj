@@ -393,7 +393,7 @@ class TCPTransport(Transport):
             message[0] = command.upper()
             callback = functools.partial(self._utilityCallback, conn = conn, args = message)
             try:
-                logging.info(f"_onUtilityMessage: {command} - {message[1:]} - {callback}")
+                # logging.info(f"_onUtilityMessage: {command} - {message[1:]} - {callback}")
                 self._onUtilityMessageCallbacks[command](message[1:], callback)
             except Exception as e:
                 logging.info(f"exception: {str(e)}")
