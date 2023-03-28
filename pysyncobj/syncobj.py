@@ -349,10 +349,15 @@ class SyncObj(object):
         :param callback: will be called on success or fail
         :type callback: function(`FAIL_REASON <#pysyncobj.FAIL_REASON>`_, None)
         """
+        logging.info(f"self.__conf.dynamicMembershipChange: {self.__conf.dynamicMembershipChange}")
         if not self.__conf.dynamicMembershipChange:
             raise Exception('dynamicMembershipChange is disabled')
+        logging.info(f"isinstance(node, Node): {isinstance(node, Node)}")
+        logging.info(f"node: {node}")
         if not isinstance(node, Node):
             node = self.__nodeClass(node)
+            logging.info(f"node 1: {node}")
+        logging.info(f"node.id: {node.id}")
         self._applyCommand(pickle.dumps(['add', node.id, node]), callback, _COMMAND_TYPE.MEMBERSHIP)
 
     def removeNodeFromCluster(self, node, callback = None):
@@ -375,6 +380,7 @@ class SyncObj(object):
         self.setCodeVersion(args[0], callback)
 
     def _addNodeToCluster(self, args, callback):
+        logging.info(f"_addNodeToCluster: {args} - {callback}")
         self.addNodeToCluster(args[0], callback)
 
     def _removeNodeFromCluster(self, args, callback):
@@ -436,6 +442,7 @@ class SyncObj(object):
                 break
             try:
                 command, callback = self.__commandsQueue.get_nowait()
+                logging.info(f"_checkCommandsToApply: {command} - {callback}")
             except Queue.Empty:
                 break
 
@@ -978,6 +985,7 @@ class SyncObj(object):
                 self.__lastResponseTime[node] = monotonicTime()
 
     def __callErrCallback(self, err, callback):
+        logging.info(f"err: {str(err)} - {callback}")
         if callback is None:
             return
         if isinstance(callback, tuple):
@@ -1181,6 +1189,7 @@ class SyncObj(object):
                                 'prevLogIdx': prevLogIdx,
                                 'prevLogTerm': prevLogTerm,
                             }
+                            logging.info(f"after leader: {node} - {node.id} - {message}")
                             self.__transport.send(node, message)
                             if node not in self.__connectedNodes:
                                 break

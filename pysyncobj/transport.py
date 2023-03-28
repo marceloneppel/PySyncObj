@@ -1,3 +1,5 @@
+import logging
+
 from .config import FAIL_REASON
 from .dns_resolver import globalDnsResolver
 from .monotonic import monotonic as monotonicTime
@@ -338,21 +340,32 @@ class TCPTransport(Transport):
         :param message: received message
         :type message: any
         """
+        logging.info(f"message: {message}")
+        logging.info(f"conn: {vars(conn)}")
 
+        logging.info(f"self._syncObj.encryptor: {self._syncObj.encryptor}")
+        logging.info(f"conn.sendRandKey: {conn.sendRandKey}")
         if self._syncObj.encryptor and not conn.sendRandKey:
             conn.sendRandKey = message
             conn.recvRandKey = os.urandom(32)
+            logging.info(f"conn.recvRandKey: {conn.recvRandKey}")
             conn.send(conn.recvRandKey)
             return
 
         # Utility messages
+        logging.info(f"isinstance(message, list): {isinstance(message, list)}")
+        logging.info(f"self._onUtilityMessage(conn, message): {self._onUtilityMessage(conn, message)}")
         if isinstance(message, list) and self._onUtilityMessage(conn, message):
             return
 
         # At this point, message should be either a node ID (i.e. address) or 'readonly'
+        logging.info(f"self._nodeAddrToNode[message]: {self._nodeAddrToNode[message]}")
+        logging.info(f"self._nodeAddrToNode: {self._nodeAddrToNode}")
         node = self._nodeAddrToNode[message] if message in self._nodeAddrToNode else None
+        logging.info(f"node: {node}")
 
         if node is None and message != 'readonly':
+            logging.info("disconnecting")
             conn.disconnect()
             self._unknownConnections.discard(conn)
             return
@@ -366,6 +379,8 @@ class TCPTransport(Transport):
 
         self._unknownConnections.discard(conn)
         self._connections[node] = conn
+        logging.info(f"node 1: {vars(node)}")
+        logging.info(f"conn 1: {vars(conn)}")
         conn.setOnMessageReceivedCallback(functools.partial(self._onMessageReceived, node))
         if not readonly:
             self._onNodeConnected(node)
@@ -378,8 +393,10 @@ class TCPTransport(Transport):
             message[0] = command.upper()
             callback = functools.partial(self._utilityCallback, conn = conn, args = message)
             try:
+                # logging.info(f"_onUtilityMessage: {command} - {message[1:]} - {callback}")
                 self._onUtilityMessageCallbacks[command](message[1:], callback)
             except Exception as e:
+                logging.info(f"exception: {str(e)}")
                 conn.send(str(e))
             return True
 
@@ -424,7 +441,11 @@ class TCPTransport(Transport):
         if node in self._lastConnectAttempt and monotonicTime() - self._lastConnectAttempt[node] < self._syncObj.conf.connectionRetryTime:
             return False
         self._lastConnectAttempt[node] = monotonicTime()
-        return self._connections[node].connect(node.ip, node.port)
+        result = self._connections[node].connect(node.ip, node.port)
+        logging.info(f"node 2: {node.ip}")
+        logging.info(f"conn 2: {node.port}")
+        logging.info(f"result 2: {result}")
+        return result
 
     def _connectIfNecessary(self):
         """
@@ -531,6 +552,8 @@ class TCPTransport(Transport):
             conn.setOnMessageReceivedCallback(functools.partial(self._onMessageReceived, node))
             conn.setOnDisconnectedCallback(functools.partial(self._onDisconnected, conn))
             self._connections[node] = conn
+            logging.info(f"node 3: {vars(node)}")
+            logging.info(f"conn 3: {vars(conn)}")
 
     def dropNode(self, node):
         """
@@ -565,11 +588,18 @@ class TCPTransport(Transport):
         :rtype bool
         """
 
+        logging.info(f"self._connections: {self._connections}")
+        logging.info(f"self._connections[node].state: {self._connections[node].state}")
         if node not in self._connections or self._connections[node].state != CONNECTION_STATE.CONNECTED:
             return False
+        logging.info(f"self._send_random_sleep_duration: {self._send_random_sleep_duration}")
         if self._send_random_sleep_duration:
             time.sleep(random.random() * self._send_random_sleep_duration)
+        logging.info(f"node: {node}")
+        logging.info(f"self._connections[node]: {self._connections[node]}")
+        logging.info(f"message: {message}")
         self._connections[node].send(message)
+        logging.info(f"self._connections[node].state: {self._connections[node].state}")
         if self._connections[node].state != CONNECTION_STATE.CONNECTED:
             return False
         return True
