@@ -1,3 +1,5 @@
+import logging
+
 from .config import FAIL_REASON
 from .dns_resolver import globalDnsResolver
 from .monotonic import monotonic as monotonicTime
@@ -104,22 +106,27 @@ class Transport(object):
 
     # Helper functions so you don't need to check for the callbacks manually in subclasses
     def _onMessageReceived(self, node, message):
+        logging.info(f"_onMessageReceived: node={node} - message={message} - self._onMessageReceivedCallback={self._onMessageReceivedCallback}")
         if self._onMessageReceivedCallback is not None:
             self._onMessageReceivedCallback(node, message)
 
     def _onNodeConnected(self, node):
+        logging.info(f"_onNodeConnected: node={node} - self._onNodeConnectedCallback={self._onNodeConnectedCallback}")
         if self._onNodeConnectedCallback is not None:
             self._onNodeConnectedCallback(node)
 
     def _onNodeDisconnected(self, node):
+        logging.info(f"_onNodeDisconnected: node={node} - self._onNodeDisconnectedCallback={self._onNodeDisconnectedCallback}")
         if self._onNodeDisconnectedCallback is not None:
             self._onNodeDisconnectedCallback(node)
 
     def _onReadonlyNodeConnected(self, node):
+        logging.info(f"_onReadonlyNodeConnected: node={node} - self._onReadonlyNodeConnectedCallback={self._onReadonlyNodeConnectedCallback}")
         if self._onReadonlyNodeConnectedCallback is not None:
             self._onReadonlyNodeConnectedCallback(node)
 
     def _onReadonlyNodeDisconnected(self, node):
+        logging.info(f"_onReadonlyNodeDisconnected: node={node} - self._onReadonlyNodeDisconnectedCallback={self._onReadonlyNodeDisconnectedCallback}")
         if self._onReadonlyNodeDisconnectedCallback is not None:
             self._onReadonlyNodeDisconnectedCallback(node)
 
@@ -219,6 +226,7 @@ class TCPTransport(Transport):
 
         self._syncObj.addOnTickCallback(self._onTick)
 
+        logging.info(f"otherNodes: {otherNodes}")
         for node in otherNodes:
             self.addNode(node)
 
@@ -320,6 +328,7 @@ class TCPTransport(Transport):
         :param conn: connection object
         :type conn: TcpConnection
         """
+        logging.info(f"_onNewIncomingConnection: conn={vars(conn)}")
 
         self._unknownConnections.add(conn)
         encryptor = self._syncObj.encryptor
@@ -406,6 +415,12 @@ class TCPTransport(Transport):
         :type node: Node
         """
 
+        logging.info(f"self._preventConnectNodes: {self._preventConnectNodes}")
+        logging.info(f"self._selfNode.address: {self._selfNode.address}")
+        if isinstance(node, TCPNode):
+            logging.info(f"node.address: {node.address}")
+        else:
+            logging.info(f"node: {node}")
         return isinstance(node, TCPNode) and node not in self._preventConnectNodes and (self._selfIsReadonlyNode or self._selfNode.address > node.address)
 
     def _connectIfNecessarySingle(self, node):
@@ -431,13 +446,16 @@ class TCPTransport(Transport):
         Connect to all nodes as necessary.
         """
 
+        logging.info(f"nodes: {self._nodes}")
         for node in self._nodes:
             self._connectIfNecessarySingle(node)
 
     def _sendSelfAddress(self, conn):
         if self._selfIsReadonlyNode:
+            logging.info("send readonly")
             conn.send('readonly')
         else:
+            logging.info(f"send self._selfNode.address={self._selfNode.address}")
             conn.send(self._selfNode.address)
 
     def _onOutgoingConnected(self, conn):
@@ -485,6 +503,7 @@ class TCPTransport(Transport):
         :param conn: connection object
         :type conn: TcpConnection
         """
+        logging.info(f"_onDisconnected: conn={vars(conn)}")
 
         self._unknownConnections.discard(conn)
         node = self._connToNode(conn)
