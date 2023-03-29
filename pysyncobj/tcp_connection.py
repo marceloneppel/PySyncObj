@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import time
 import socket
 from sys import platform
@@ -52,6 +54,11 @@ def set_keepalive(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
         set_keepalive_osx(sock, after_idle_sec, interval_sec, max_fails)
     elif platform == "win32":
         set_keepalive_windows(sock, after_idle_sec, interval_sec, max_fails)
+
+
+def write_log(data: str):
+    with open("/var/log/postgresql/raft.log", "a") as raft_file:
+        raft_file.write(f"{datetime.now()} - {data}\n")
 
 
 class TcpConnection(object):
@@ -180,6 +187,7 @@ class TcpConnection(object):
             return
 
         if eventType & POLL_EVENT_TYPE.ERROR:
+            write_log("if eventType & POLL_EVENT_TYPE.ERROR:")
             self.disconnect()
             return
 
@@ -189,6 +197,7 @@ class TcpConnection(object):
 
         if eventType & POLL_EVENT_TYPE.READ or eventType & POLL_EVENT_TYPE.WRITE:
             if self.__socket.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR):
+                write_log("if self.__socket.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR):")
                 self.disconnect()
                 return
 
@@ -226,6 +235,7 @@ class TcpConnection(object):
 
     def __processConnectionTimeout(self):
         if monotonicTime() - self.__lastReadTime > self.__timeout:
+            write_log("if monotonicTime() - self.__lastReadTime > self.__timeout:")
             self.disconnect()
             return
 
@@ -242,6 +252,7 @@ class TcpConnection(object):
         try:
             res = self.__socket.send(self.__writeBuffer)
             if res < 0:
+                write_log("if res < 0:")
                 self.disconnect()
                 return False
             if res == 0:
@@ -250,6 +261,7 @@ class TcpConnection(object):
             return True
         except socket.error as e:
             if e.errno not in (socket.errno.EAGAIN, socket.errno.EWOULDBLOCK):
+                write_log("if e.errno not in (socket.errno.EAGAIN, socket.errno.EWOULDBLOCK):")
                 self.disconnect()
             return False
 
@@ -263,12 +275,15 @@ class TcpConnection(object):
             incoming = self.__socket.recv(self.__recvBufferSize)
         except socket.error as e:
             if e.errno not in (socket.errno.EAGAIN, socket.errno.EWOULDBLOCK):
+                write_log("if e.errno not in (socket.errno.EAGAIN, socket.errno.EWOULDBLOCK):")
                 self.disconnect()
             return False
         if self.__socket.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR):
+            write_log("if self.__socket.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR):")
             self.disconnect()
             return False
         if not incoming:
+            write_log("if not incoming:")
             self.disconnect()
             return False
         self.__readBuffer += incoming
@@ -294,6 +309,7 @@ class TcpConnection(object):
                 assert randKey == self.recvRandKey
         except:
             # Why no logging of security errors?
+            write_log("except:")
             self.disconnect()
             return None
         self.__readBuffer = self.__readBuffer[4 + l:]
