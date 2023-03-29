@@ -106,7 +106,7 @@ class Transport(object):
 
     # Helper functions so you don't need to check for the callbacks manually in subclasses
     def _onMessageReceived(self, node, message):
-        write_log(f"_onMessageReceived: node={node} - message={message} - self._onMessageReceivedCallback={self._onMessageReceivedCallback}")
+        # write_log(f"_onMessageReceived: node={node} - message={message} - self._onMessageReceivedCallback={self._onMessageReceivedCallback}")
         if self._onMessageReceivedCallback is not None:
             self._onMessageReceivedCallback(node, message)
 
