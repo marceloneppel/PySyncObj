@@ -182,6 +182,7 @@ class TcpConnection(object):
 
     def __processConnection(self, descr, eventType):
         poller = self.__poller
+        write_log(f"__processConnection: descr={descr} - eventType={eventType} - self.__fileno={self.__fileno}")
         if descr != self.__fileno:
             poller.unsubscribe(descr)
             return
