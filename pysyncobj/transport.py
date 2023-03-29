@@ -529,6 +529,7 @@ class TCPTransport(Transport):
         :type node: TCPNode
         """
 
+        write_log(f"addNode: node={vars(node)}")
         self._nodes.add(node)
         self._nodeAddrToNode[node.address] = node
         if self._shouldConnect(node):
@@ -553,6 +554,7 @@ class TCPTransport(Transport):
         :type node: Node
         """
 
+        write_log(f"dropNode: node={vars(node)}")
         conn = self._connections.pop(node, None)
         if conn is not None:
             # Calling conn.disconnect() immediately triggers the onDisconnected callback if the connection isn't already disconnected, so this is necessary to prevent the automatic reconnect.
@@ -578,7 +580,7 @@ class TCPTransport(Transport):
         :rtype bool
         """
 
-        write_log(f"send: node={vars(node)} - message={message} - self._connections[node].state={self._connections[node].state}")
+        # write_log(f"send: node={vars(node)} - message={message} - self._connections[node].state={self._connections[node].state}")
         if node not in self._connections or self._connections[node].state != CONNECTION_STATE.CONNECTED:
             return False
         if self._send_random_sleep_duration:
