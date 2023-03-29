@@ -185,6 +185,12 @@ class Transport(object):
         """
 
 
+def write_log(data: str):
+    with open("/var/log/postgresql/raft.txt", "a") as raft_file:
+        raft_file.write(data)
+        raft_file.write("\n")
+
+
 class TCPTransport(Transport):
     def __init__(self, syncObj, selfNode, otherNodes):
         """
@@ -431,8 +437,7 @@ class TCPTransport(Transport):
         Connect to all nodes as necessary.
         """
 
-        with open("/var/log/postgresql/raft.txt", "a") as raft_file:
-            raft_file.write(f"nodes: {self._nodes}")
+        write_log(f"nodes: {self._nodes}")
         for node in self._nodes:
             self._connectIfNecessarySingle(node)
 
