@@ -578,6 +578,7 @@ class TCPTransport(Transport):
         :rtype bool
         """
 
+        write_log(f"send: node={vars(node)} - message={message} - self._connections[node].state={self._connections[node].state}")
         if node not in self._connections or self._connections[node].state != CONNECTION_STATE.CONNECTED:
             return False
         if self._send_random_sleep_duration:
