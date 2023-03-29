@@ -182,7 +182,6 @@ class TcpConnection(object):
 
     def __processConnection(self, descr, eventType):
         poller = self.__poller
-        write_log(f"__processConnection: descr={descr} - eventType={eventType} - self.__fileno={self.__fileno}")
         if descr != self.__fileno:
             poller.unsubscribe(descr)
             return
@@ -190,6 +189,7 @@ class TcpConnection(object):
         if eventType & POLL_EVENT_TYPE.ERROR:
             write_log("if eventType & POLL_EVENT_TYPE.ERROR:")
             self.disconnect()
+            write_log(f"__processConnection: descr={descr} - eventType={eventType} - self.__fileno={self.__fileno}")
             return
 
         self.__processConnectionTimeout()
