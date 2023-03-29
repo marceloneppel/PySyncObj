@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from .config import FAIL_REASON
 from .dns_resolver import globalDnsResolver
 from .monotonic import monotonic as monotonicTime
@@ -186,9 +188,8 @@ class Transport(object):
 
 
 def write_log(data: str):
-    with open("/var/log/postgresql/raft.txt", "a") as raft_file:
-        raft_file.write(data)
-        raft_file.write("\n")
+    with open("/var/log/postgresql/raft.log", "a") as raft_file:
+        raft_file.write(f"{datetime.now()} - {data}\n")
 
 
 class TCPTransport(Transport):
