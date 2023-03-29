@@ -106,22 +106,27 @@ class Transport(object):
 
     # Helper functions so you don't need to check for the callbacks manually in subclasses
     def _onMessageReceived(self, node, message):
+        write_log(f"_onMessageReceived: node={node} - message={message} - self._onMessageReceivedCallback={self._onMessageReceivedCallback}")
         if self._onMessageReceivedCallback is not None:
             self._onMessageReceivedCallback(node, message)
 
     def _onNodeConnected(self, node):
+        write_log(f"_onNodeConnected: node={node} - self._onNodeConnectedCallback={self._onNodeConnectedCallback}")
         if self._onNodeConnectedCallback is not None:
             self._onNodeConnectedCallback(node)
 
     def _onNodeDisconnected(self, node):
+        write_log(f"_onNodeDisconnected: node={node} - self._onNodeDisconnectedCallback={self._onNodeDisconnectedCallback}")
         if self._onNodeDisconnectedCallback is not None:
             self._onNodeDisconnectedCallback(node)
 
     def _onReadonlyNodeConnected(self, node):
+        write_log(f"_onReadonlyNodeConnected: node={node} - self._onReadonlyNodeConnectedCallback={self._onReadonlyNodeConnectedCallback}")
         if self._onReadonlyNodeConnectedCallback is not None:
             self._onReadonlyNodeConnectedCallback(node)
 
     def _onReadonlyNodeDisconnected(self, node):
+        write_log(f"_onReadonlyNodeDisconnected: node={node} - self._onReadonlyNodeDisconnectedCallback={self._onReadonlyNodeDisconnectedCallback}")
         if self._onReadonlyNodeDisconnectedCallback is not None:
             self._onReadonlyNodeDisconnectedCallback(node)
 
@@ -438,7 +443,7 @@ class TCPTransport(Transport):
         Connect to all nodes as necessary.
         """
 
-        write_log(f"nodes: {self._nodes}")
+        # write_log(f"nodes: {self._nodes}")
         for node in self._nodes:
             self._connectIfNecessarySingle(node)
 
