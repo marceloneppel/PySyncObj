@@ -431,6 +431,7 @@ class TCPTransport(Transport):
         Connect to all nodes as necessary.
         """
 
+        logging.info(f"nodes: {self._nodes}")
         for node in self._nodes:
             self._connectIfNecessarySingle(node)
 
