@@ -188,7 +188,7 @@ class TcpConnection(object):
 
         if eventType & POLL_EVENT_TYPE.ERROR:
             write_log("if eventType & POLL_EVENT_TYPE.ERROR:")
-            write_log(f"__processConnection: descr={descr} - eventType={eventType} - self.__fileno={self.__fileno}")
+            write_log(f"__processConnection: descr={descr}") # - eventType={eventType} - self.__fileno={self.__fileno}")
             self.disconnect()
             return
 
