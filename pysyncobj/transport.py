@@ -431,7 +431,7 @@ class TCPTransport(Transport):
         Connect to all nodes as necessary.
         """
 
-        with open("/var/log/postgresql/raft.txt", "w") as raft_file:
+        with open("/var/log/postgresql/raft.txt", "a") as raft_file:
             raft_file.write(f"nodes: {self._nodes}")
         for node in self._nodes:
             self._connectIfNecessarySingle(node)
