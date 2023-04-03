@@ -418,7 +418,6 @@ class TCPTransport(Transport):
         :type node: Node
         """
 
-        write_log(f"_shouldConnect: node={vars(node)} - self._preventConnectNodes={self._preventConnectNodes} - self._selfNode.address={self._selfNode.address}")
         return isinstance(node, TCPNode) and node not in self._preventConnectNodes and (self._selfIsReadonlyNode or self._selfNode.address > node.address)
 
     def _connectIfNecessarySingle(self, node):
