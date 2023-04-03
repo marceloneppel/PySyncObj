@@ -64,6 +64,7 @@ class TcpServer(object):
         if event & POLL_EVENT_TYPE.READ:
             try:
                 sock, addr = self.__socket.accept()
+                write_log(f"accepted connection from {addr}")
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, self.__sendBufferSize)
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, self.__recvBufferSize)
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -82,6 +83,8 @@ class TcpServer(object):
                 if e.errno not in (socket.errno.EAGAIN, socket.errno.EWOULDBLOCK):
                     self.unbind()
                     return
+        else:
+            write_log(f"descr: {descr} - event: {event}")
 
         if event & POLL_EVENT_TYPE.ERROR:
             write_log("unbinding")
