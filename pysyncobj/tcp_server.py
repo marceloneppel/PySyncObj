@@ -85,5 +85,6 @@ class TcpServer(object):
                     return
 
         if event & POLL_EVENT_TYPE.ERROR:
+            write_log("unbinding")
             self.unbind()
             return
