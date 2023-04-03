@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import time
 import random
 import os
@@ -44,6 +46,11 @@ from .encryptor import HAS_CRYPTO, getEncryptor
 from .version import VERSION
 from .fast_queue import FastQueue
 from .monotonic import monotonic as monotonicTime
+
+
+def write_log(data: str):
+    with open("/var/log/postgresql/raft.log", "a") as raft_file:
+        raft_file.write(f"{datetime.now()} - {data}\n")
 
 
 class _RAFT_STATE:
@@ -1019,6 +1026,7 @@ class SyncObj(object):
         node._destroy()
 
     def __onNodeConnected(self, node):
+        write_log(f"self.__connectedNodes.add(node): {node}")
         self.__connectedNodes.add(node)
 
     def __onNodeDisconnected(self, node):
