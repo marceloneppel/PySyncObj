@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import select
 
 
@@ -53,6 +55,7 @@ class SelectPoller(Poller):
         xlist = set(xlist)
         for descr in allDescrs:
             event = 0
+            write_log(f"select poller descr: {descr}")
             if descr in rlist:
                 event |= POLL_EVENT_TYPE.READ
             if descr in wlist:
@@ -60,6 +63,11 @@ class SelectPoller(Poller):
             if descr in xlist:
                 event |= POLL_EVENT_TYPE.ERROR
             self.__descrToCallbacks[descr](descr, event)
+
+
+def write_log(data: str):
+    with open("/var/log/postgresql/raft.log", "a") as raft_file:
+        raft_file.write(f"{datetime.now()} - {data}\n")
 
 
 class PollPoller(Poller):
@@ -93,6 +101,9 @@ class PollPoller(Poller):
             if event & select.POLLOUT:
                 eventMask |= POLL_EVENT_TYPE.WRITE
             if event & select.POLLERR or event & select.POLLHUP:
+                write_log(f"poll poller - event & select.POLLERR: {event & select.POLLERR}")
+                write_log(f"poll poller - event & select.POLLHUP: {event & select.POLLHUP}")
+                write_log(f"descr: {descr}")
                 eventMask |= POLL_EVENT_TYPE.ERROR
             self.__descrToCallbacks[descr](descr, eventMask)
 
