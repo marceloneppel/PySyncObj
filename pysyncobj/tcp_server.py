@@ -1,4 +1,5 @@
 import socket
+from datetime import datetime
 
 from .poller import POLL_EVENT_TYPE
 from .tcp_connection import TcpConnection, _getAddrType
@@ -7,6 +8,11 @@ from .tcp_connection import TcpConnection, _getAddrType
 class SERVER_STATE:
     UNBINDED = 0,
     BINDED = 1
+
+
+def write_log(data: str):
+    with open("/var/log/postgresql/raft.log", "a") as raft_file:
+        raft_file.write(f"{datetime.now()} - {data}\n")
 
 
 class TcpServer(object):
@@ -72,6 +78,8 @@ class TcpServer(object):
                 )
                 self.__onNewConnectionCallback(conn)
             except socket.error as e:
+                write_log(f"e.errno: {e.errno}")
+                write_log(f"socket.error: {vars(e)}")
                 if e.errno not in (socket.errno.EAGAIN, socket.errno.EWOULDBLOCK):
                     self.unbind()
                     return
