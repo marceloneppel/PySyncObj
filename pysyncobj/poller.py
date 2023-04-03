@@ -102,7 +102,6 @@ class PollPoller(Poller):
                 eventMask |= POLL_EVENT_TYPE.WRITE
             if event & select.POLLERR or event & select.POLLHUP:
                 write_log(f"event: {event}")
-                write_log(f"event: {vars(event)}")
                 write_log(f"poll poller - event & select.POLLERR: {event & select.POLLERR}")
                 write_log(f"poll poller - event & select.POLLHUP: {event & select.POLLHUP}")
                 write_log(f"descr: {descr}")

@@ -137,7 +137,6 @@ class TcpConnection(object):
             self.__socket.connect((host, port))
         except socket.error as e:
             write_log(f"e.errno: {e.errno}")
-            write_log(f"socket.error: {vars(e)}")
             if e.errno not in (socket.errno.EINPROGRESS, socket.errno.EWOULDBLOCK):
                 return False
         self.__fileno = self.__socket.fileno()

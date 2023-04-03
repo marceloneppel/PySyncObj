@@ -79,7 +79,6 @@ class TcpServer(object):
                 self.__onNewConnectionCallback(conn)
             except socket.error as e:
                 write_log(f"e.errno: {e.errno}")
-                write_log(f"socket.error: {vars(e)}")
                 if e.errno not in (socket.errno.EAGAIN, socket.errno.EWOULDBLOCK):
                     self.unbind()
                     return
